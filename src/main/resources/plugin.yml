@@ -1,0 +1,10 @@
+name: SecretCreeper
+version: '1.0-SNAPSHOT'
+main: net.neological.secretCreeper.SecretCreeper
+api-version: '1.21'
+commands:
+  start:
+  inventorytest:
+  addplayer:
+  displayplayerlist:
+  removeplayer:
