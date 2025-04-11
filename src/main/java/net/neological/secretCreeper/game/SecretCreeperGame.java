@@ -1,11 +1,12 @@
 package net.neological.secretCreeper.game;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.neological.secretCreeper.SecretCreeper;
 import net.neological.secretCreeper.game.enums.*;
+import org.bukkit.Bukkit;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Representation of a Secret Creeper Game
@@ -17,8 +18,13 @@ public class SecretCreeperGame {
     private final PolicyEffect[] board;
     private int passedPlayerPolicies;
     private int passedCreeperPolicies;
-    private final List<Integer> termLimits;
+    private final List<SecretCreeperPlayer> termLimits;
     private Alignment winner;
+    private SecretCreeperPlayer president;
+    private SecretCreeperPlayer chancellor;
+    private List<Alignment> policies;
+    private List<Map.Entry<String, Boolean>> votes;
+    private int electionTracker;
 
     /**
      * Constructor for
@@ -26,12 +32,8 @@ public class SecretCreeperGame {
      * @throws IllegalArgumentException players length must equal 6 for now
      */
     public SecretCreeperGame(List<SecretCreeperPlayer> players) {
-        try {
-            if (players.size() != 6) {
-                throw new IllegalArgumentException("numPlayers must be 6");
-            }
-        } catch (IllegalArgumentException e) {
-            System.err.println("Error: " + e.getMessage());
+        if (players.size() != 6) {
+            throw new IllegalArgumentException("numPlayers must be 6");
         }
 
         this.deck = new ArrayList<>();
@@ -48,22 +50,120 @@ public class SecretCreeperGame {
         this.passedPlayerPolicies = 0;
         this.termLimits = new ArrayList<>();
         this.winner = null;
+        this.votes = new ArrayList<>();
+        this.electionTracker = 0;
+
+        for (SecretCreeperPlayer p: this.players) {
+            if (p.getPosition() == Position.PRESIDENT) {
+                president = p;
+            }
+        }
     }
 
-    public Alignment getWinner() { return this.winner; }
-    public void setWinner(Alignment winner) { this.winner = winner; }
-    public int[] getTermLimits() {
-        Integer[] integerArray = this.termLimits.toArray(Integer[]::new);
-        int[] intArray = new int[integerArray.length];
-        for (int i = 0; i < integerArray.length; i++) {
-            intArray[i] = integerArray[i];
+    /** 0: no winner; 1: player policy win; 2: player execution win;
+     * 3: creeper policy win; 4: creeper chancellor win
+     * */
+    public int getWinner() {
+        if (winner == null) {
+            return 0;
+        } else if (winner == Alignment.PLAYER) {
+            if (SecretCreeper.instance.currentGame.getPassedPlayerPolicies() >= 5) {
+                return 1;
+            } else {
+                return 2;
+            }
+        } else {
+            if (SecretCreeper.instance.currentGame.getPassedCreeperPolicies() >= 6) {
+                return 3;
+            } else {
+                return 4;
+            }
         }
-        return intArray;
     }
-    public PolicyEffect[] getBoard() { return this.board; }
-    public List<SecretCreeperPlayer> getPlayers() { return this.players; }
-    public int getPassedPlayerPolicies() { return this.passedPlayerPolicies; }
-    public int getPassedCreeperPolicies() { return this.passedCreeperPolicies; }
+
+    public List<SecretCreeperPlayer> getTermLimits() {
+        return termLimits;
+    }
+
+    public PolicyEffect[] getBoard() {
+        return this.board;
+    }
+
+    public List<SecretCreeperPlayer> getPlayers() {
+        return this.players;
+    }
+
+    public int getPassedPlayerPolicies() {
+        return this.passedPlayerPolicies;
+    }
+
+    public int getPassedCreeperPolicies() {
+        return this.passedCreeperPolicies;
+    }
+
+    public SecretCreeperPlayer getPresident() {
+        return this.president;
+    }
+
+    public SecretCreeperPlayer getChancellor() {
+        return this.chancellor;
+    }
+
+    public List<Alignment> getPolicies() {
+        return this.policies;
+    }
+
+    public void removePolicy(int i) {
+        if (i >= policies.size() || i < 0) {
+            throw new IllegalArgumentException("index is not valid");
+        }
+        policies.remove(i);
+    }
+
+    public List<Map.Entry<String, Boolean>> getVotes() {
+        return this.votes;
+    }
+
+    public void addVote(String name, Boolean vote) {
+        votes.add(new AbstractMap.SimpleEntry<>(name, vote));
+    }
+
+    public void resetVotes() {
+        votes = new ArrayList<>();
+    }
+
+    public int getElectionTracker() {
+        return this.electionTracker;
+    }
+
+    public void incrementElectionTracker() {
+        electionTracker++;
+    }
+
+    public void resetElectionTracker() {
+        electionTracker = 0;
+    }
+
+    /**
+     * Sets the chancellor
+     * @throws IllegalArgumentException p cannot be current president
+     * @throws IllegalArgumentException p cannot be in term limits
+     * */
+    public void setChancellor(SecretCreeperPlayer p) {
+        if (p.equals(president)) {
+            throw new IllegalArgumentException("p cannot be current president");
+        }
+        for (SecretCreeperPlayer player: termLimits) {
+            if (p.equals(player)) {
+                throw new IllegalArgumentException("p cannot be in term limits");
+            }
+        }
+        if (chancellor != null) {
+            chancellor.setPosition(Position.NONE);
+        }
+        p.setPosition(Position.CHANCELLOR);
+        chancellor = p;
+    }
 
     /**
      * Shuffles deck in SecretCreeperGame
@@ -85,12 +185,8 @@ public class SecretCreeperGame {
      * @throws IllegalArgumentException Deck size must be at least 3
      */
     public Alignment[] policyPeek() {
-        try {
-            if (deck.size() < 3) {
-                throw new IllegalArgumentException("deck size must be at least 3");
-            }
-        } catch (IllegalArgumentException e) {
-            System.err.println("Error: " + e.getMessage());
+        if (deck.size() < 3) {
+            throw new IllegalArgumentException("deck size must be at least 3");
         }
         return new Alignment[]{ deck.get(0), deck.get(1), deck.get(2) };
     }
@@ -101,73 +197,39 @@ public class SecretCreeperGame {
      * @throws IllegalArgumentException id must be a valid id in players
      */
     public void execution(int id) {
-        try {
-            boolean isValid = false;
-            SecretCreeperPlayer temp = null;
-            for (SecretCreeperPlayer player: this.players) {
-                if (player.getId() == id) {
-                    isValid = true;
-                    temp = player;
-                    if (player.getRole() == Role.CHARGED) {
-                        setWinner(Alignment.PLAYER);
-                    }
+        boolean isValid = false;
+        SecretCreeperPlayer temp = null;
+        for (SecretCreeperPlayer player: this.players) {
+            if (player.getId() == id) {
+                isValid = true;
+                temp = player;
+                if (player.getRole() == Role.CHARGED) {
+                    winner = Alignment.PLAYER;
                 }
             }
-            if (isValid) {
-                this.players.remove(temp);
-            } else {
-                throw new IllegalArgumentException("id must be a valid id in players");
-            }
-        } catch (IllegalArgumentException e) {
-            System.err.println("Error: " + e.getMessage());
+        }
+        if (isValid) {
+            this.players.remove(temp);
+        } else {
+            throw new IllegalArgumentException("id must be a valid id in players");
         }
     }
 
     /**
-     * Changes the president and chancellor
-     * @param presId id of player who will become president
-     * @param chancId id of player who will become president
-     * @throws IllegalArgumentException chancId cannot be in termLimits
-     * @throws IllegalArgumentException ids cannot be the same
-     * @throws IllegalArgumentException id must be a valid id in players
+     * Changes the president and chancellor, requires chancellor to have been set
+     * @throws IllegalArgumentException chancellor cannot be null
      */
-    public void election(int presId, int chancId) {
-        try {
-            // future reference: maybe make presId the old president for term limits
-            // NEED TO - restore this
-            for (int id: termLimits) {
-                if (chancId == id) {
-                    throw new IllegalArgumentException("chancId cannot be in termLimits");
-                }
-                if (presId == chancId) {
-                    throw new IllegalArgumentException("ids cannot be the same");
-                }
-            }
+    public void election() {
+        if (chancellor == null) {
+            throw new IllegalArgumentException("chancellor cannot be null");
+        }
 
-            termLimits.clear();
-            // termLimits.add(presId);
-            termLimits.add(chancId);
+        termLimits.clear();
+        // termLimits.add(president);
+        termLimits.add(chancellor);
 
-            boolean isValid = false;
-            for (SecretCreeperPlayer player: this.players) {
-                if (player.getPosition() == Position.PRESIDENT || player.getPosition() == Position.CHANCELLOR) {
-                    player.setPosition(Position.NONE);
-                }
-                if (player.getId() == presId) {
-                    isValid = true;
-                    player.setPosition(Position.PRESIDENT);
-                } else if (player.getId() == chancId) {
-                    isValid = true;
-                    player.setPosition(Position.CHANCELLOR);
-                    if (player.getRole() == Role.CHARGED && passedCreeperPolicies >= 3) { setWinner(Alignment.CREEPER); }
-                }
-            }
-
-            if (!isValid) {
-                throw new IllegalArgumentException("id must be a valid id in players");
-            }
-        } catch (IllegalArgumentException e) {
-            System.err.println("Error: " + e.getMessage());
+        if (chancellor.getRole() == Role.CHARGED && passedCreeperPolicies >= 3) {
+            winner = Alignment.CREEPER;
         }
     }
 
@@ -180,12 +242,12 @@ public class SecretCreeperGame {
         if (align == Alignment.CREEPER) {
             this.passedCreeperPolicies++;
             if (passedCreeperPolicies == 6) {
-                setWinner(Alignment.CREEPER);
+                winner = Alignment.CREEPER;
             }
         } else {
             this.passedPlayerPolicies++;
             if (passedPlayerPolicies == 5) {
-                setWinner((Alignment.PLAYER));
+                winner = Alignment.PLAYER;
             }
         }
         deck.removeFirst();
@@ -199,13 +261,12 @@ public class SecretCreeperGame {
      * Gets top three policies and remove them from deck
      * @return Top three policies of deck
      */
-    public List<Alignment> legistation() {
-        List<Alignment> policies = new ArrayList<>(Arrays.asList(new Alignment[]{ deck.get(0), deck.get(1), deck.get(2)}));
+    public void legistation() {
+        policies = new ArrayList<>(Arrays.asList(new Alignment[]{ deck.get(0), deck.get(1), deck.get(2)}));
         deck.remove(0);
         deck.remove(0);
         deck.remove(0);
         if (deck.size() < 3) { shuffleDeck(); }
-        return policies;
     }
 
     /**
@@ -216,12 +277,12 @@ public class SecretCreeperGame {
         if (policy == Alignment.PLAYER) {
             this.passedPlayerPolicies++;
             if (this.passedPlayerPolicies >= 5) {
-                setWinner(Alignment.PLAYER);
+                winner = Alignment.PLAYER;
             }
         } else {
             this.passedCreeperPolicies++;
             if (this.passedCreeperPolicies >= 6) {
-                setWinner(Alignment.CREEPER);
+                winner = Alignment.CREEPER;
             }
         }
     }
@@ -242,8 +303,10 @@ public class SecretCreeperGame {
         }
         if (temp == this.players.size() - 1) {
             players.getFirst().setPosition(Position.PRESIDENT);
+            president = players.getFirst();
         } else {
             players.get(temp + 1).setPosition(Position.PRESIDENT);
+            president = players.get(temp + 1);
         }
     }
 }
