@@ -146,4 +146,42 @@ public class PlayerItems {
 
         return is;
     }
+
+    public ItemStack creeperAnimationStick() {
+        ItemStack is = new ItemStack(Material.STICK);
+
+        ItemMeta im = is.getItemMeta();
+        im.displayName(Component.text("Creeper Animation Stick")
+                .color(TextColor.color(0x9900FF))
+                .decoration(TextDecoration.ITALIC, false)
+        );
+
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.text("Right click to set creeper spawning blocks"));
+        lore.add(Component.text("Left click to remove latest creeper spawning block"));
+        im.lore(lore);
+
+        is.setItemMeta(im);
+
+        return is;
+    }
+
+    public ItemStack playerAnimationStick() {
+        ItemStack is = new ItemStack(Material.STICK);
+
+        ItemMeta im = is.getItemMeta();
+        im.displayName(Component.text("Player Animation Stick")
+                .color(TextColor.color(0x9900FF))
+                .decoration(TextDecoration.ITALIC, false)
+        );
+
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.text("Right click to set player spawning blocks"));
+        lore.add(Component.text("Left click to remove latest player spawning block"));
+        im.lore(lore);
+
+        is.setItemMeta(im);
+
+        return is;
+    }
 }

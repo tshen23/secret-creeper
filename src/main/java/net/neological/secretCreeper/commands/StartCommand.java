@@ -40,8 +40,11 @@ public class StartCommand implements CommandExecutor {
         }
 
         // set president randomly
-        Random r = new Random();
-        SecretCreeperPlayer tempPres = SecretCreeper.instance.tempPlayers.get(r.nextInt(SecretCreeper.instance.tempPlayers.size()));
+//        Random r = new Random();
+//        SecretCreeperPlayer tempPres = SecretCreeper.instance.tempPlayers.get(r.nextInt(SecretCreeper.instance.tempPlayers.size()));
+//        tempPres.setPosition(Position.PRESIDENT);
+
+        SecretCreeperPlayer tempPres = SecretCreeper.instance.tempPlayers.getFirst();
         tempPres.setPosition(Position.PRESIDENT);
         
         // set creeper and charged randomly

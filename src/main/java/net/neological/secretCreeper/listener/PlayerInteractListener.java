@@ -21,6 +21,46 @@ public class PlayerInteractListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
 
+        // if right-clicked block
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (event.getItem() == null) {
+                return;
+            }
+
+            // CREEPER STICK
+            if (event.getItem().isSimilar(pi.creeperAnimationStick())) {
+                SecretCreeper.instance.creeperBlocks.add(event.getClickedBlock());
+                event.getPlayer().sendMessage("§2Creeper Block Set: " + SecretCreeper.instance.creeperBlocks.size());
+            }
+
+            // PLAYER STICK
+            if (event.getItem().isSimilar(pi.playerAnimationStick())) {
+                SecretCreeper.instance.playerBlocks.add(event.getClickedBlock());
+                event.getPlayer().sendMessage("§2Player Block Set: " + SecretCreeper.instance.playerBlocks.size());
+            }
+        }
+
+        // if left-clicked block
+        if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+            if (event.getItem() == null) {
+                return;
+            }
+
+            // CREEPER STICK
+            if (event.getItem().isSimilar(pi.creeperAnimationStick())) {
+                event.setCancelled(true);
+                SecretCreeper.instance.creeperBlocks.removeLast();
+                event.getPlayer().sendMessage("§2Creeper Block Removed: " + SecretCreeper.instance.creeperBlocks.size());
+            }
+
+            // PLAYER STICK
+            if (event.getItem().isSimilar(pi.playerAnimationStick())) {
+                event.setCancelled(true);
+                SecretCreeper.instance.playerBlocks.removeLast();
+                event.getPlayer().sendMessage("§2Player Block Removed: " + SecretCreeper.instance.playerBlocks.size());
+            }
+        }
+
         // if right-clicked something
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (event.getItem() == null) {

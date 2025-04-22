@@ -25,6 +25,7 @@ public class SecretCreeperGame {
     private List<Alignment> policies;
     private List<Map.Entry<String, Boolean>> votes;
     private int electionTracker;
+    private int currentIndex;
 
     /**
      * Constructor for
@@ -56,6 +57,7 @@ public class SecretCreeperGame {
         for (SecretCreeperPlayer p: this.players) {
             if (p.getPosition() == Position.PRESIDENT) {
                 president = p;
+                this.currentIndex = p.getId();
             }
         }
     }
@@ -291,22 +293,14 @@ public class SecretCreeperGame {
      * Passes on the presidency
      **/
     public void passPresidency() {
-        int temp = 0;
-        int i = 0;
-        for (SecretCreeperPlayer p: this.players) {
-            if (p.getPosition() == Position.PRESIDENT) {
-                temp = i;
-                p.setPosition(Position.NONE);
-                break;
-            }
-            i++;
+        int newPresident = (currentIndex + 1) % players.size();
+
+        for(SecretCreeperPlayer p : players) {
+            p.setPosition(Position.NONE);
         }
-        if (temp == this.players.size() - 1) {
-            players.getFirst().setPosition(Position.PRESIDENT);
-            president = players.getFirst();
-        } else {
-            players.get(temp + 1).setPosition(Position.PRESIDENT);
-            president = players.get(temp + 1);
-        }
+
+        currentIndex = newPresident;
+        players.get(newPresident).setPosition(Position.PRESIDENT);
+        president = players.get(newPresident);
     }
 }

@@ -24,6 +24,9 @@ public class GiveItems implements CommandExecutor{
         player.getInventory().addItem(new ItemStack(pi.executeButton()));
         player.getInventory().addItem(new ItemStack(pi.policyPeekButton()));
         player.getInventory().addItem(new ItemStack(pi.governmentCollapseButton()));
+        player.getInventory().addItem(new ItemStack(pi.passPresidentButton()));
+        player.getInventory().addItem(new ItemStack(pi.creeperAnimationStick()));
+        player.getInventory().addItem(new ItemStack(pi.playerAnimationStick()));
         return true;
     }
 }

@@ -13,6 +13,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -195,6 +198,10 @@ public class Animations {
         Bukkit.broadcast(Component.text(no.toString())
                 .color(TextColor.color(0xAAAAAA)));
 
+        if (passed) {
+            return;
+        }
+
         // election tracker
         if (SecretCreeper.instance.currentGame.getElectionTracker() == 1) {
             Bukkit.broadcast(Component.text(""));
@@ -232,9 +239,11 @@ public class Animations {
         if (policy == Alignment.PLAYER) {
             Bukkit.broadcast(Component.text("Player Polices Passed: " + SecretCreeper.instance.currentGame.getPassedPlayerPolicies())
                     .color(TextColor.color(0x55FFFF)));
+            playerBlockAnimation(SecretCreeper.instance.currentGame.getPassedPlayerPolicies() - 1);
         } else {
             Bukkit.broadcast(Component.text("Creeper Polices Passed: " + SecretCreeper.instance.currentGame.getPassedCreeperPolicies())
                     .color(TextColor.color(0x00AA00)));
+            creeperBlockAnimation(SecretCreeper.instance.currentGame.getPassedCreeperPolicies() - 1);
         }
     }
 
@@ -257,6 +266,8 @@ public class Animations {
             } else if (p.getRole() == Role.CREEPER) {
                 creeper = p.getName();
             }
+            Bukkit.getPlayer(p.getName()).clearActivePotionEffects();
+            Bukkit.getPlayer(p.getName()).setGameMode(GameMode.ADVENTURE);
         }
 
         for (SecretCreeperPlayer p: SecretCreeper.instance.currentGame.getPlayers()) {
@@ -290,5 +301,27 @@ public class Animations {
         Bukkit.broadcast(Component.text("Current President:")
                 .color(TextColor.color(0x55FF55)));
         Bukkit.broadcast(Component.text(SecretCreeper.instance.currentGame.getPresident().getName()));
+    }
+
+    public void creeperBlockAnimation(int i) {
+        if (i >= SecretCreeper.instance.creeperBlocks.size()) {
+            return;
+        }
+        Location loc = SecretCreeper.instance.creeperBlocks.get(i).getLocation();
+        loc.set(loc.getX() + 0.5, loc.getY() + 1, loc.getZ() + 0.5);
+        loc.getWorld().strikeLightningEffect(loc);
+        LivingEntity creeper = (LivingEntity) loc.getWorld().spawnEntity(loc, EntityType.CREEPER);
+        creeper.customName(Component.text("Creeper Policy"));
+    }
+
+    public void playerBlockAnimation(int i) {
+        if (i >= SecretCreeper.instance.playerBlocks.size()) {
+            return;
+        }
+        Location loc = SecretCreeper.instance.playerBlocks.get(i).getLocation();
+        loc.set(loc.getX() + 0.5, loc.getY() + 1, loc.getZ() + 0.5);
+        loc.getWorld().strikeLightningEffect(loc);
+        LivingEntity ocelot = (LivingEntity) loc.getWorld().spawnEntity(loc, EntityType.OCELOT);
+        ocelot.customName(Component.text("Player Policy"));
     }
 }
