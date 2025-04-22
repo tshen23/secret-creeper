@@ -9,14 +9,9 @@ import net.neological.secretCreeper.game.enums.Alignment;
 import net.neological.secretCreeper.game.enums.PolicyEffect;
 import net.neological.secretCreeper.game.enums.Role;
 import net.neological.secretCreeper.items.PlayerItems;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -268,6 +263,16 @@ public class Animations {
             }
             Bukkit.getPlayer(p.getName()).clearActivePotionEffects();
             Bukkit.getPlayer(p.getName()).setGameMode(GameMode.ADVENTURE);
+        }
+
+        World w = Bukkit.getPlayer(SecretCreeper.instance.currentGame.getPlayers().getFirst().getName()).getWorld();
+
+        for (Entity e: w.getEntities()) {
+            if (e instanceof Creeper) {
+                e.remove();
+            } else if (e instanceof Ocelot) {
+                e.remove();
+            }
         }
 
         for (SecretCreeperPlayer p: SecretCreeper.instance.currentGame.getPlayers()) {
