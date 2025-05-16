@@ -1,4 +1,4 @@
-# MyMinecraftPlugin
+# Secret Creeper
 
 ## Prerequisites
 
