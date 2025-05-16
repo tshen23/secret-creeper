@@ -13,8 +13,8 @@
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/yourusername/MyMinecraftPlugin.git
-   cd MyMinecraftPlugin
+   git clone https://github.com/tshen23/secret-creeper.git
+   cd secret-creeper
    ```
 
 2. **Import into IntelliJ**:
@@ -55,7 +55,7 @@
   mvn clean package
   ```
 
-  * Outputs `MyMinecraftPlugin.jar` in the `target/` directory.
+  * Outputs `SecretCreeper-1.0-SNAPSHOT.jar` in the `target/` directory.
 
 * **Gradle**:
 
