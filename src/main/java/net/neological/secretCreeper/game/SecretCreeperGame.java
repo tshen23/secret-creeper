@@ -107,6 +107,30 @@ public class SecretCreeperGame {
         return this.president;
     }
 
+    /**
+     * @throws IllegalArgumentException if id is not in players
+     * */
+    public void setPresident(int id) {
+        SecretCreeperPlayer newPresident = null;
+        for (SecretCreeperPlayer player : players) {
+            if (player.getId() == id) {
+                newPresident = player;
+                break;
+            }
+        }
+
+        if (newPresident == null) {
+            throw new IllegalArgumentException("Player with ID " + id + " not found.");
+        } else if (newPresident.equals(president)) {
+            return;
+        }
+
+        president.setPosition(Position.NONE);
+        newPresident.setPosition(Position.PRESIDENT);
+        president = newPresident;
+        currentIndex = players.indexOf(newPresident);
+    }
+
     public SecretCreeperPlayer getChancellor() {
         return this.chancellor;
     }

@@ -30,6 +30,7 @@ public final class SecretCreeper extends JavaPlugin {
         getCommand("displayplayerlist").setExecutor(new DisplayPlayerList());
         getCommand("removeplayer").setExecutor(new RemovePlayer());
         getCommand("giveitems").setExecutor(new GiveItems());
+        getCommand("changepresident").setExecutor(new ChangePresident());
         getServer().getPluginManager().registerEvents(new PlayerInteractListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
     }

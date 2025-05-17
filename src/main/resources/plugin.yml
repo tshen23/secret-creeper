@@ -8,3 +8,11 @@ commands:
   displayplayerlist:
   removeplayer:
   giveitems:
+  changepresident:
+    description: Manually change the president to a player with the given ID
+    usage: /changepresident <player_id>
+    permission: secretcreeper.admin
+permissions:
+  secretcreeper.admin:
+    description: Allows admin commands for SecretCreeper.
+    default: op
