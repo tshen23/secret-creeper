@@ -2,6 +2,7 @@ package net.neological.secretCreeper.listener;
 
 import net.neological.secretCreeper.SecretCreeper;
 import net.neological.secretCreeper.game.SecretCreeperGame;
+import net.neological.secretCreeper.game.enums.Alignment;
 import net.neological.secretCreeper.game.enums.Position;
 import net.neological.secretCreeper.items.PlayerItems;
 import net.neological.secretCreeper.uiux.Animations;
@@ -112,7 +113,9 @@ public class PlayerInteractListener implements Listener {
             if (event.getItem().isSimilar(pi.governmentCollapseButton())) {
                 event.setCancelled(true);
 
-                an.governmentCollapseAnimation(event.getPlayer(), SecretCreeper.instance.currentGame.governmentCollapse());
+                Alignment alignment = SecretCreeper.instance.currentGame.governmentCollapse();
+                an.governmentCollapseAnimation(event.getPlayer(), alignment);
+                an.legislationAnimation(alignment);
 
                 if (game.getWinner() == 0) {
                     Bukkit.getPlayer(game.getPresident().getName()).getInventory().addItem(pi.passPresidentButton());
